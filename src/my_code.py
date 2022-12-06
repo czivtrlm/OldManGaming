@@ -5,9 +5,6 @@
 #
 #############################
 import time
-
-# Write code here:
-
 import pygame
 import random
 
@@ -23,14 +20,14 @@ y = 660
 x2 = 300
 y2 = 660
 vy = 0
-vx = float(600)
+vx = 0
 vy2 = 0
 cond = True
 cond2 = True
 DashCD = True
 directionR = False
 directionR2 = True
-stop = False
+stop = True
 period = time.time()
 figMR = [
     (10, 10),
@@ -80,7 +77,17 @@ dusty = [
 ]
 # rand_x, rand_y = random.randint(-100, 100), random.randint(-100, 100)
 
-pygame.key.set_repeat(100, 5)
+pygame.key.set_repeat(100, 20)
+
+
+class Slime:
+    is_p1 = False
+
+    def __init__(self, is_p1: bool):
+        self.is_p1 = is_p1
+
+    def figure(self, x1, y1, x2, y2):
+        pass
 
 
 def figure(x1, y1, x2, y2):
@@ -142,11 +149,19 @@ while True:
     pressed = pygame.key.get_pressed()
 
     if pressed[pygame.K_LEFT]:
-        vx -= 2
         directionR = False
+        stop = False
+        if vx > -8:
+            vx -= 0.25
+    else:
+        stop = True
     if pressed[pygame.K_RIGHT]:
         directionR = True
-        vx += 2
+        stop = False
+        if vx < 8:
+            vx += 0.25
+    elif not pressed[pygame.K_LEFT]:
+        stop = True
     if pressed[pygame.K_UP] and cond:
         if not y < 660:
             vy = -4
@@ -170,12 +185,8 @@ while True:
 
     if pressed[pygame.K_LSHIFT] and DashCD:
         DashCD = False
-        if directionR:
-            vx += 4
-            vy = -3
-        else:
-            vx -= 4
-            vy = -3
+        vx = 7
+        vy = -5
     y = min(660, y + vy)
     if y < 660:
         if vy == 0:
@@ -186,11 +197,17 @@ while True:
         if vy2 == 0:
             vy2 = 0.04
         vy2 += vy2 * (0.04 / vy2)
-    x = vx
-    if pressed[pygame.K_LEFT]:
-        vx += vx * (0.5 / vx)
-    elif pressed[pygame.K_RIGHT]:
-        vx -= vx * (0.5 / vx)
+
+    if vx > 0:
+        vx -= vx * (0.16 / vx)
+        if vx < 0:
+            vx = 0
+    elif vx < 0:
+        vx += vx * (0.16 / vx)
+        if vx > 0:
+            vx = 0
+
+    x += vx
     if x < -20:
         x = 300 * 5
     elif x > 310 * 5:
